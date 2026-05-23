@@ -580,3 +580,50 @@ openclaw gateway restart
 | `projects/A-024/radar/` | Signal ingestion pipeline |
 | `projects/D-013/` | NeuroTrader trading architecture |
 | `projects/osprey-core/build/fleet-kit/` | Fleet node deployment packages |
+
+---
+
+## Appendix A: macOS Bootstrap (Apple Mini M4)
+
+For Service Manager nodes running on Apple Silicon:
+
+### A.1 Differences from Linux
+| Concern | Linux (DGX Spark) | macOS (Apple Mini) |
+|---------|-------------------|---------------------|
+| Package manager | apt | Homebrew (brew) |
+| Paths | `/home/infinitespark2/` | `/Users/$USER/` — all paths use `$HOME` |
+| Docker | Native | Docker Desktop |
+| GPU | NVIDIA Blackwell (CUDA) | Apple Silicon GPU (Metal) |
+| Service manager | systemd (systemctl) | launchd (launchctl) |
+| Ollama | Native Linux | macOS builds available |
+| OpenClaw | npm global install | npm global install (same) |
+
+### A.2 Automated Install
+```bash
+git clone https://github.com/wbrom42/osprey-bootstrap.git
+cd osprey-bootstrap
+bash bootstrap/install-macos.sh
+```
+Covers: Xcode CLI → Homebrew → core deps → Docker → Ollama → OpenClaw → workspace → fleet kit.
+
+### A.3 Verify
+```bash
+bash bootstrap/verify-macos.sh
+```
+27 checks: runtime, services, workspace, fleet kit.
+
+### A.4 Manual Steps (not automated)
+1. Complete Docker Desktop setup (GUI — first launch)
+2. Configure API keys: `~/.openclaw/secrets/.env`
+3. Run `openclaw gateway init`
+4. Edit STARTUP_CONTEXT.md with correct `$HOME` paths
+5. Restore cron jobs: `openclaw cron list` (will populate from config)
+
+### A.5 Path Differences
+All fleet kit files use `~/spark-vault/` (relative). On macOS this resolves to `/Users/$USER/spark-vault/`. Update any hardcoded `/home/infinitespark2/` paths if they appear in config files.
+
+### A.6 Known Limitations
+- No local 405B-class inference — Apple GPU ≠ NVIDIA CUDA
+- Docker Desktop has higher resource overhead than native Linux Docker
+- Neo4j/Qdrant via Docker Desktop work but with slightly higher latency
+- systemd timers unavailable — use OpenClaw cron exclusively
