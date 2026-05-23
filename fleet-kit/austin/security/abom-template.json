@@ -1,0 +1,13 @@
+{
+  "_description": "Agent Bill of Materials — populate with this instance's agents and keys",
+  "instance": "REPLACE_WITH_INSTANCE_NAME",
+  "generated": "REPLACE_WITH_DATE",
+  "agents": [],
+  "keys": [],
+  "relationships": [],
+  "controls": [
+    {"id": "CTRL-001", "name": "Credential Sweep", "cadence": "weekly", "script": "security/credential-sweep.sh"},
+    {"id": "CTRL-002", "name": "Exec Whitelist", "enforcement": "AGENTS.md red lines"},
+    {"id": "CTRL-003", "name": "BOUNDED Delegation", "enforcement": "forge/gate_runner.py"}
+  ]
+}
